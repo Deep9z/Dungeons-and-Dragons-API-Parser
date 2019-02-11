@@ -10,24 +10,29 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 
 #Open up the Google Firestore databse, credentials have been removed since this is being put public
-cred = credentials.Certificate("CredentialsInsteretedHere")
+cred = credentials.Certificate("dungeons-and-dragons-comp-app-e462a73a2dd5.json")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
 
 #Iterate through entire json document and run, getting all of the monsters
-for i in range (0, 326):
+for i in range (1, 326):
+    print(i)
 
     url = ("http://www.dnd5eapi.co/api/monsters/" + str(i) + "/")#Dynamically change the url
     response = requests.get(url).json()#Get the data for the specific monster
-
-    docName = response['name']#Get the name, for use in naming in the database
+    
+    #Remove the / in the names, as it affects the naming,a s the database thinks its a file path
+    nameString = response['name']
+    sep = '/'
+    newName = nameString.split(sep, 1)[0]
+    docName = newName   
 
     #Put the data in a dictionary, for use in formatting for the database
     data = {
         u'index' : response['index'],
-        u'name' : response['name'],
+        u'name' : docName,
         u'size' : response['size'],
         u'type' : response['type'],
         u'subtype' : response['subtype'],
@@ -66,6 +71,7 @@ for i in range (0, 326):
     else:
         specialData = {}
         for item in response['special_abilities']:
+            print(item)
             if 'attack_bonus' not in response:
                 pass
             else:
