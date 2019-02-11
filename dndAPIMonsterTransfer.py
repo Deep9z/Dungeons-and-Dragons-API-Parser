@@ -1,16 +1,17 @@
 #Author: Adrian LaCour
 #Description: Parses through a website url with JSON data. Inserts the list into
-#             a Google Firestore database 
+#             a Google Firestore database
 
 import json
 import requests
+import copy
 
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
 #Open up the Google Firestore databse, credentials have been removed since this is being put public
-cred = credentials.Certificate("dungeons-and-dragons-comp-app-e462a73a2dd5.json")
+cred = credentials.Certificate("insertYourCertFileHere")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
@@ -22,12 +23,12 @@ for i in range (1, 326):
 
     url = ("http://www.dnd5eapi.co/api/monsters/" + str(i) + "/")#Dynamically change the url
     response = requests.get(url).json()#Get the data for the specific monster
-    
+
     #Remove the / in the names, as it affects the naming,a s the database thinks its a file path
     nameString = response['name']
     sep = '/'
     newName = nameString.split(sep, 1)[0]
-    docName = newName   
+    docName = newName
 
     #Put the data in a dictionary, for use in formatting for the database
     data = {
@@ -65,13 +66,11 @@ for i in range (1, 326):
         data[u'charisma'] = response['charisma']
 
 
-
     if 'special_abilities' not in response:
         pass
     else:
         specialData = {}
-        for item in response['special_abilities']:
-            print(item)
+        for counter, item in enumerate(response['special_abilities']):
             if 'attack_bonus' not in response:
                 pass
             else:
@@ -83,7 +82,8 @@ for i in range (1, 326):
                 specialData[u'damageBonus'] = item['damage_bonus']
             specialData[u'description'] = item['desc']
             specialData[u'name'] = item['name']
-            data[u'specialAbilities'].append(specialData)
+            data[u'specialAbilities'].append(copy.deepcopy(specialData))
+            #doc_ref = db.collection(u'Monsters').document(docName).update(data[u'specialAbilities'][counter])
 
 
     if 'actions' not in response:
@@ -102,7 +102,7 @@ for i in range (1, 326):
                 specialData[u'damageBonus'] = item['damage_bonus']
             specialData[u'description'] = item['desc']
             specialData[u'name'] = item['name']
-            data[u'actions'].append(specialData)
+            data[u'actions'].append(copy.deepcopy(specialData))
 
 
     if 'legendary_actions' not in response:
@@ -121,8 +121,7 @@ for i in range (1, 326):
                 specialData[u'damageBonus'] = item['damage_bonus']
             specialData[u'description'] = item['desc']
             specialData[u'name'] = item['name']
-            data[u'legendaryActions'].append(specialData)
-
+            data[u'legendaryActions'].append(copy.deepcopy(specialData))
 
     #Put the above data in the current database
     doc_ref = db.collection(u'Monsters').document(docName).set(data) #dynamically add in the document, as the monster name

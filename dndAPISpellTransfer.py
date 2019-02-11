@@ -11,7 +11,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 
 #Open up the Google Firestore databse, credentials have been removed since this is being put public
-cred = credentials.Certificate("CredentialsInsteretedHere")
+cred = credentials.Certificate("insertYourCertFileHere")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
@@ -40,6 +40,8 @@ for item in response:
     description = item['desc']
     description = description.replace("<p>", "")
     description = description.replace("</p>", "")
+    description = description.replace("<b>", "")
+    description = description.replace("</b>", "")
 
 
     #Put all of the informaiton intotheir proper fields
