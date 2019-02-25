@@ -11,7 +11,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 
 #Open up the Google Firestore databse, credentials have been removed since this is being put public
-cred = credentials.Certificate("dungeons-and-dragons-comp-app-399340606421.json")
+cred = credentials.Certificate("InstertCertificateHere")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
